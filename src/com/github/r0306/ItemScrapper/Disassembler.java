@@ -1,10 +1,7 @@
 package com.github.r0306.ItemScrapper;
 
-import java.io.EOFException;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -42,7 +39,7 @@ public class Disassembler implements Serializable
 		
 	}
 	
-	public Disassembler(Location loc) throws IOException
+	public Disassembler(Location loc) throws IOException, ClassNotFoundException
 	{
 		
 		x = loc.getBlockX();
@@ -82,44 +79,20 @@ public class Disassembler implements Serializable
 		
 	}
 	
-	public void createDisassembler() throws IOException
+	public void createDisassembler()
 	{
-		
-		FileOutputStream f_out = new FileOutputStream(Plugin.getPlugin().getDataFolder() + "\\ScrapperBlocks.bin");
-		
-		ObjectOutputStream obj_out = new ObjectOutputStream (f_out);
-		
-		obj_out.writeObject(this);
-		
+						
 		ItemScrapper.disassemblers.add(this);
-		
-		obj_out.close();
 		
 	}
 	
-	public void deleteDisassembler(Disassembler disassembler) throws IOException, ClassNotFoundException
+	public void removeDisassembler()
 	{
 		
-		ArrayList<Disassembler> disassemblers = getDisassemblers();
+		ItemScrapper.disassemblers.remove(this);
 		
-		if (disassemblers.contains(disassembler))
-		{
-		
-			disassemblers.remove(disassembler);
-			emptyFile();
-			writeListToFile(disassemblers);
-			
-			if (ItemScrapper.disassemblers.contains(this))
-			{
-				
-				ItemScrapper.disassemblers.remove(this);
-		
-			}
-				
-		}
-				
 	}
-		
+
 	public void emptyFile() throws IOException
 	{
 		
@@ -147,55 +120,11 @@ public class Disassembler implements Serializable
 		obj_out.close();
 			
 	}
-	
-	public ArrayList<Disassembler> getDisassemblers() throws IOException, ClassNotFoundException
-	{
 		
-		ArrayList<Disassembler> disassemblers = new ArrayList<Disassembler>();
-		
-		FileInputStream f_in = new FileInputStream(Plugin.getPlugin().getDataFolder() + "\\ScrapperBlocks.bin");
-		
-		if (f_in.available() != 0)
-		{
-
-			ObjectInputStream obj_in = new ObjectInputStream(f_in);
-				
-			if (obj_in.readObject() != null)
-			{
-
-					while(true)
-					{
-						
-						 try
-						 {
-							
-							 Disassembler disassembler = (Disassembler) obj_in.readObject();
-						     disassemblers.add(disassembler);
-						  
-						 } catch (EOFException ex) {
-						           
-							 break;
-						         
-						 }
-				
-					}
-					
-					f_in.close();
-				
-			}
-		
-		}
-		
-		return disassemblers;
-		
-	}
-	
 	public void disassembleItem(Player player)
 	{
 	
 		ItemStack item = player.getItemInHand();
-		
-		item.setAmount(1);
 		
 		if (item.getType() != Material.AIR)
 		{
@@ -210,7 +139,7 @@ public class Disassembler implements Serializable
 
 					ShapedRecipe srecipe = (ShapedRecipe) recipe;
 					
-					player.getInventory().remove(item);
+					player.getInventory().getItemInHand().setAmount(item.getAmount() - 1);
 					
 					dropItems(srecipe.getIngredientMap().values());
 
@@ -222,7 +151,7 @@ public class Disassembler implements Serializable
 					
 					ShapelessRecipe srecipe = (ShapelessRecipe) recipe;
 					
-					player.getInventory().remove(item);
+					player.getInventory().getItemInHand().setAmount(item.getAmount() - 1);
 					
 					dropItems(srecipe.getIngredientList());
 					

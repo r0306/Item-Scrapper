@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -19,7 +20,7 @@ public class Listeners implements Listener
 	private HashMap<String, Integer> breaking = new HashMap<String, Integer>();
 	
 	@EventHandler (ignoreCancelled = true)
-	public void creationListener(BlockPlaceEvent event) throws IOException
+	public void creationListener(BlockPlaceEvent event) throws IOException, ClassNotFoundException
 	{
 		
 		Player player = event.getPlayer();
@@ -35,6 +36,38 @@ public class Listeners implements Listener
 
 				new Disassembler(block.getLocation());
 				player.sendMessage(ChatColor.YELLOW + "[Item Scrapper] " + ChatColor.GREEN + "Created new scrapper. Left click with item in hand to disassemble the item.");
+				
+			}
+			
+		}
+		
+	}
+	
+	@EventHandler (ignoreCancelled = true)
+	public void disassembleRemove(BlockBreakEvent event)
+	{
+		
+		Player player = event.getPlayer();
+		Block block = event.getBlock();
+		
+		Config config = new Config();
+		
+		if (config.matches(block))
+		{
+			
+			if (config.canCreate(player))
+			{
+				
+				if (matchDisassembler(block) != null)
+				{
+
+					Disassembler disassembler = matchDisassembler(block);
+					
+					disassembler.removeDisassembler();
+					
+					player.sendMessage(ChatColor.YELLOW + "[Item Scrapper]" + ChatColor.GREEN + "Destroyed item scrapper.");
+					
+				}
 				
 			}
 			

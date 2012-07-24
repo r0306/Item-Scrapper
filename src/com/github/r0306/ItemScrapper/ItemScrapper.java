@@ -1,7 +1,11 @@
 package com.github.r0306.ItemScrapper;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import org.bukkit.configuration.file.FileConfiguration;
@@ -34,8 +38,8 @@ public class ItemScrapper extends JavaPlugin
 		try
 		{
 		
-			disassemblers = new Disassembler().getDisassemblers();
-		
+			disassemblers = getDisassemblers();
+					
 		} catch (ClassNotFoundException e) {
 
 			e.printStackTrace();
@@ -45,19 +49,30 @@ public class ItemScrapper extends JavaPlugin
 			e.printStackTrace();
 		
 		}
-		System.out.println(disassemblers.size());
+
 		getServer().getPluginManager().registerEvents(new Listeners(), this);
 		
-		System.out.println("Item Scrapper version + [" + getDescription().getVersion() + "] loaded.");
+		System.out.println("Item Scrapper version [" + getDescription().getVersion() + "] loaded.");
 		
 	}
 	
 	public void onDisable()
 	{
 			
+		try
+		{
+		
+			saveDisassemblers();
+		
+		} catch (IOException e) {
+
+			e.printStackTrace();
+
+		}
+		
 		disassemblers = null;
 		
-		System.out.println("Item Scrapper version + [" + getDescription().getVersion() + "] unloaded.");
+		System.out.println("Item Scrapper version [" + getDescription().getVersion() + "] unloaded.");
 		
 	}
 	
@@ -85,6 +100,42 @@ public class ItemScrapper extends JavaPlugin
 			
 		}
 			
+	}
+	
+	@SuppressWarnings("unchecked")
+	public ArrayList<Disassembler> getDisassemblers() throws IOException, ClassNotFoundException
+	{
+				
+		ArrayList<Disassembler> tempList = new ArrayList<Disassembler>();
+		
+		FileInputStream f_in = new FileInputStream(Plugin.getPlugin().getDataFolder() + "\\ScrapperBlocks.bin");
+		
+		if (f_in.available() != 0)
+		{
+
+			ObjectInputStream obj_in = new ObjectInputStream(f_in);
+			
+			tempList = (ArrayList<Disassembler>) obj_in.readObject();
+
+			obj_in.close();
+		
+		}
+		
+		return tempList;
+				
+	}
+	
+	public void saveDisassemblers() throws IOException
+	{
+		
+		FileOutputStream f_out = new FileOutputStream(Plugin.getPlugin().getDataFolder() + "\\ScrapperBlocks.bin");
+		
+		ObjectOutputStream obj_out = new ObjectOutputStream (f_out);
+		
+		obj_out.writeObject(disassemblers);
+		
+		obj_out.close();
+		
 	}
 	
 }

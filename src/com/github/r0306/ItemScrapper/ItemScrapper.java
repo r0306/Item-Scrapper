@@ -30,7 +30,7 @@ public class ItemScrapper extends JavaPlugin
 			System.out.println("[Item Scrapper] Error creating scrapper data file.");
 		
 		}
-		/*
+		
 		try
 		{
 		
@@ -45,7 +45,7 @@ public class ItemScrapper extends JavaPlugin
 			e.printStackTrace();
 		
 		}
-		*/
+		System.out.println(disassemblers.size());
 		getServer().getPluginManager().registerEvents(new Listeners(), this);
 		
 		System.out.println("Item Scrapper version + [" + getDescription().getVersion() + "] loaded.");

@@ -97,10 +97,9 @@ public class Listeners implements Listener
 		for (Disassembler disassembler : ItemScrapper.disassemblers)
 		{
 
-			if (disassembler.getBlock().getType() == block.getType())
+			if (disassembler.matches(block))
 			{
-				System.out.println(disassembler.getLocation());
-				System.out.println(block.getLocation());
+
 				return disassembler;
 				
 			}

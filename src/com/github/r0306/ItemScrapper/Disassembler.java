@@ -59,7 +59,7 @@ public class Disassembler implements Serializable
 	public Location getLocation()
 	{
 		
-		Location location = new Location(Bukkit.getWorld(world), x, y, z);
+		location = new Location(Bukkit.getWorld(world), x, y, z);
 		
 		return location;
 		
@@ -69,6 +69,16 @@ public class Disassembler implements Serializable
 	{
 		
 		return block;
+		
+	}
+	
+	public boolean matches(Block block)
+	{
+		
+		Location location = getLocation();
+		Location loc = block.getLocation();
+		
+		return location.getWorld() == loc.getWorld() && location.getBlockX() == loc.getBlockX() && location.getBlockY() == loc.getBlockY() && location.getBlockZ() == loc.getBlockZ();
 		
 	}
 	
@@ -82,6 +92,8 @@ public class Disassembler implements Serializable
 		obj_out.writeObject(this);
 		
 		ItemScrapper.disassemblers.add(this);
+		
+		obj_out.close();
 		
 	}
 	
@@ -131,7 +143,9 @@ public class Disassembler implements Serializable
 			obj_out.writeObject(disassembler);
 			
 		}
-		
+	
+		obj_out.close();
+			
 	}
 	
 	public ArrayList<Disassembler> getDisassemblers() throws IOException, ClassNotFoundException
@@ -140,31 +154,36 @@ public class Disassembler implements Serializable
 		ArrayList<Disassembler> disassemblers = new ArrayList<Disassembler>();
 		
 		FileInputStream f_in = new FileInputStream(Plugin.getPlugin().getDataFolder() + "\\ScrapperBlocks.bin");
-				
-		ObjectInputStream obj_in = new ObjectInputStream(f_in);
-			
-		if (obj_in.readObject() != null)
+		
+		if (f_in.available() != 0)
 		{
-			
-				while(true)
-				{
-					
-					 try
-					 {
-						
-						 Disassembler disassembler = (Disassembler) obj_in.readObject();
-					     disassemblers.add(disassembler);
-					  
-					 } catch (EOFException ex) {
-					           
-						 break;
-					         
-					 }
-			
-				}
+
+			ObjectInputStream obj_in = new ObjectInputStream(f_in);
 				
-				f_in.close();
-			
+			if (obj_in.readObject() != null)
+			{
+
+					while(true)
+					{
+						
+						 try
+						 {
+							
+							 Disassembler disassembler = (Disassembler) obj_in.readObject();
+						     disassemblers.add(disassembler);
+						  
+						 } catch (EOFException ex) {
+						           
+							 break;
+						         
+						 }
+				
+					}
+					
+					f_in.close();
+				
+			}
+		
 		}
 		
 		return disassemblers;
@@ -175,6 +194,8 @@ public class Disassembler implements Serializable
 	{
 	
 		ItemStack item = player.getItemInHand();
+		
+		item.setAmount(1);
 		
 		if (item.getType() != Material.AIR)
 		{
@@ -192,6 +213,8 @@ public class Disassembler implements Serializable
 					player.getInventory().remove(item);
 					
 					dropItems(srecipe.getIngredientMap().values());
+
+					break;
 					
 				}
 				else if (recipe instanceof ShapelessRecipe)
@@ -202,6 +225,8 @@ public class Disassembler implements Serializable
 					player.getInventory().remove(item);
 					
 					dropItems(srecipe.getIngredientList());
+					
+					break;
 					
 				}
 				
@@ -217,8 +242,13 @@ public class Disassembler implements Serializable
 		for(ItemStack item : items)
 		{
 			
-			this.getLocation().getWorld().dropItem(this.getLocation().add(0, 1, 0), item);
+			if (item != null)
+			{
 			
+				this.getLocation().getWorld().dropItem(this.getLocation().add(0, 1, 0), item);
+			
+			}
+				
 		}
 		
 	}
